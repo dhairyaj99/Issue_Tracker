@@ -1,0 +1,326 @@
+package Assign_2;
+import BasicIO.*;
+import static BasicIO.Formats.*;
+
+/** This class creates a bug tracking program for a computer IT department
+  *
+  * @author Dhairya Jaiswal
+  * @version 1.0 (02/19/2018)                                                  */
+
+
+public class Assign_2_1{
+  
+  private Node            post;
+  private Node            pend;
+  private Node            close;
+  private ASCIIDisplayer  d;
+  private BasicForm       f1;
+  private BasicForm       f2;
+  
+  public Assign_2_1( ) {
+    
+    int button;
+    int button1;
+    
+    d = new ASCIIDisplayer();
+    f1 = new BasicForm("Create","Assign","Resolve","List","Quit");
+    f2 = new BasicForm("OK");
+    post = null;
+    pend = null;
+    close = null;
+    
+    setUpForm();
+    setUpForm2();
+    
+    for ( ; ; ) {
+      f1.clearAll();
+      f2.clearAll();
+      System.out.println("1");
+      button = f1.accept();
+      System.out.println("7");
+      if ( button == 4 ) break;
+      switch ( button ) {
+        case 0: {
+          int ticketNum = f1.readInt("ticket#");
+          f2.writeInt("ticket#", ticketNum);
+          f2.writeString("status","New");
+          
+          button1 = f2.accept();
+          System.out.println(button1);
+          
+          if ( button1 == 0 ) {
+            createTicket();
+          }
+          
+          break;
+        }
+        case 1: {
+          Ticket aTic = removePosted();
+          fillForm(aTic);
+          f2.accept("OK");
+          addPending(aTic);
+          aTic.setTech(f2.readString("tech"));
+          break;
+        }
+        case 2: {
+          int tNum = f1.readInt("ticket#");
+          Ticket aTick = removePending(tNum);
+          fillForm2(aTick);
+          f2.accept("OK");
+          addClosed(aTick);
+          aTick.setResolve(f2.readString("resolve"));
+          break;
+        }
+        case 3: {
+          d.writeLine("New Issues");
+          postedList();
+          d.writeLine("Pending Issues");
+          pendingList();
+          d.writeLine("Closed Issues");
+          closeList();
+          break;
+        }
+      };
+    }
+    
+    System.out.println("Closed");
+    f2.close();
+    d.close();
+    
+  };
+  
+  
+  /* This method creates the first basic form; f1*/
+  
+  private void setUpForm ( ) {
+    f1.setTitle("Bug Tracker");
+    f1.addTextField("ticket#","Ticket #", 6, 110, 10);
+  };
+  
+  /* This method creates the second basic form; f2 */
+  
+  private void setUpForm2 ( ) {
+    f2.setTitle("Ticket");
+    f2.addTextField("ticket#","Ticket #", 6, 10, 10);
+    f2.addTextField("priority","Priority", 2, 10, 40);
+    f2.addTextField("status","Status", 10, 90, 40);
+    f2.addTextField("user","User", 23, 10, 70);
+    f2.addTextArea("issue","Issue", 5, 35, 10, 100);
+    f2.addTextField("tech","Technician", 25, 10, 235);
+    f2.addTextArea("resolve","Resolution", 5, 35, 10, 265);
+  };
+  
+  /* This method takes the values entered by the user in the Basic Form and 
+   * creates a Ticket with the given values
+   */
+
+  
+  private void createTicket ( ) {
+    Ticket ticket;
+    
+    int tNum = f2.readInt("ticket#");
+    int pri = f2.readInt("priority");
+    String sta = f2.readString("status");
+    String user = f2.readString("user");
+    String iss = f2.readString("issue");
+    
+    ticket = new Ticket(tNum,pri,sta,user,iss);
+    
+    addPosted(ticket);
+  };
+  
+  /* This method takes a ticket and adds it into the posted list 
+   * 
+   * @param Ticket ticket - the ticket object that the method is adding to the posted list
+   */
+  
+  private void addPosted ( Ticket ticket ) {
+    Node  p;
+    Node  q;
+    
+    q = null;
+    p = post;
+    while ( p != null && p.item.getPriority() >= ticket.getPriority()) {
+      q = p;
+      p = p.next;
+    };
+    if ( q == null ) {
+      post = new Node(ticket,p);
+    }
+    else {
+      q.next = new Node(ticket,p);
+    };
+  };
+  
+  /* This method removes the top priority ticket from the posted list */
+  
+  private Ticket removePosted ( ) {
+    Ticket result;
+    Node p;
+    p = post;
+    
+    if ( p == null ) {
+      System.out.println("No Tickets to Assign.");
+      result = null;
+    }
+    else {
+      result = p.item;
+      post = p.next;
+    }
+    
+    p.item.setStatus("Pending");
+    return result;
+  };
+  
+  /* This method takes a given ticket and adds it to the pending list
+   * 
+   * @param Ticket ticket - the ticket object that the method is adding to the pending list
+   */
+  
+  private void addPending ( Ticket ticket ) {
+    pend = new Node (ticket,pend);
+  };
+  
+  /* This method takes a ticket number and searches for that ticket item in the pending list and removes it
+   * 
+   * @param int ticketNum - ticket number                                 */
+  
+  private Ticket removePending ( int ticketNum ) {
+    Ticket   result;  
+    Node  p;
+    Node  q;
+    
+    q = null;
+    p = pend;
+    while ( p != null && p.item.getTicketNum() != ticketNum ) {
+      q = p;
+      p = p.next;
+    };
+    if ( p == null ) {
+      result = null;
+    }
+    else {
+      result = p.item;
+      if ( q == null ) {
+        pend = p.next;
+      }
+      else {
+        q.next = p.next;
+      };
+    };
+    
+    p.item.setStatus("Closed");
+    return result;
+  };
+  
+  /* This method takes a ticket and adds it to the closed list
+   * 
+   * @param Ticket ticket - the ticket object that the method is adding to the closed list
+   */
+  
+  private void addClosed ( Ticket ticket ) {
+    Node  p;
+    Node  q;
+    
+    q = null;
+    p = close;
+    while ( p != null ) {
+      q = p;
+      p = p.next;
+    };
+    if ( q == null ) {
+      close = new Node(ticket,null);
+    }
+    else {
+      q.next = new Node(ticket,null);
+    };
+  };
+  
+  /* This method lists the new issues onto the ASCII Displayer              */
+  
+  private void postedList ( ) {
+    Node  p;
+    
+    p = post;
+    while ( p != null ) {
+      d.writeInt(p.item.getTicketNum());
+      d.writeInt(p.item.getPriority());
+      d.writeString(p.item.getStatus());
+      d.writeString(p.item.getUser());
+      d.writeString(p.item.getIssue());
+      d.newLine();
+      p = p.next;
+    };
+    d.newLine();
+  };
+  
+  /* This method lists the pending issues              */
+  
+  private void pendingList ( ) {
+    Node  p;
+    
+    p = pend;
+    while ( p != null ) {
+      d.writeInt(p.item.getTicketNum());
+      d.writeInt(p.item.getPriority());
+      d.writeString(p.item.getStatus());
+      d.writeString(p.item.getUser());
+      d.writeString(p.item.getIssue());
+      d.writeString(p.item.getTech());
+      d.newLine();
+      p = p.next;
+    };
+    d.newLine();
+  };
+  
+  /* This method lists the closed issues              */
+  
+  private void closeList ( ) {
+    Node  p;
+    
+    p = close;
+    while ( p != null ) {
+      d.writeInt(p.item.getTicketNum());
+      d.writeInt(p.item.getPriority());
+      d.writeString(p.item.getStatus());
+      d.writeString(p.item.getUser());
+      d.writeString(p.item.getIssue());
+      d.writeString(p.item.getTech());
+      d.writeString(p.item.getResolve());
+      d.newLine();
+      p = p.next;
+    };
+    d.newLine();
+  };
+  
+  /* This method takes a ticket and fills the basic form with its information
+   * 
+   * @param Ticket ticket - the ticket object that the method is using to fill f1                          */
+  
+  private void fillForm ( Ticket ticket ) {
+    f2.writeInt("ticket#",ticket.getTicketNum());
+    f2.writeInt("priority",ticket.getPriority());
+    f2.writeString("status",ticket.getStatus());
+    f2.writeString("user",ticket.getUser());
+    f2.writeString("issue",ticket.getIssue());
+  };
+  
+  /* This method takes a ticket and fills the basic form with its information
+   * 
+   * @param Ticket aTicket - the ticket object that the method is using to fill f2                        */
+  
+  private void fillForm2 ( Ticket ticket ) {
+    f2.writeInt("ticket#",ticket.getTicketNum());
+    f2.writeInt("priority",ticket.getPriority());
+    f2.writeString("status",ticket.getStatus());
+    f2.writeString("user",ticket.getUser());
+    f2.writeString("issue",ticket.getIssue());
+    f2.writeString("tech",ticket.getTech());
+  };
+  
+  
+  
+  
+  public static void main ( String[] args ) { Assign_2_1 t = new Assign_2_1(); };
+  
+}

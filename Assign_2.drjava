@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<drjava version="drjava-20160913-225446">
+  <project autorefresh="false" build="" root="" work="">
+    <createjar file=""/>
+    <source>
+      <file active="true" name="Assign_2_1.java" package="Assign_2" timestamp="22-Oct-2018 19:33:49">
+        <select from="8071" to="8071"/>
+        <scroll column="4764" row="0"/>
+      </file>
+      <file name="Ticket.java" package="Assign_2" timestamp="19-Mar-2018 15:09:18">
+        <select from="8071" to="8071"/>
+        <scroll column="4764" row="0"/>
+      </file>
+      <file name="Node.java" package="Assign_2" timestamp="19-Mar-2018 15:09:18">
+        <select from="8071" to="8071"/>
+        <scroll column="4764" row="0"/>
+      </file>
+    </source>
+    <included/>
+    <excluded/>
+    <collapsed/>
+    <classpath/>
+    <breakpoints/>
+    <watches/>
+    <bookmarks/>
+    <preferences/>
+  </project>
+</drjava>
